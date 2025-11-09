@@ -1,90 +1,102 @@
-# Tech Stack Document
+# Tech Stack Document for Tournament Manager Platform
 
-This document explains the key technologies chosen for the **codeguide-starter** project. It’s written in everyday language so anyone—technical or not—can understand why each tool was picked and how it supports the application.
+This document explains the technologies chosen for our tournament management system. We use familiar, modern tools that work together to deliver a smooth experience for both administrators and end users. 
 
-## 1. Frontend Technologies
-The frontend is everything the user sees and interacts with. For this project, we’ve used:
+## Frontend Technologies
+
+Our Admin Dashboard (the part you interact with in your browser) is built using:
 
 - **Next.js (App Router)**
-  - A React framework that makes page routing, server-side rendering, and API routes very simple.
-  - Enhances user experience by pre-rendering pages on the server or at build time, leading to faster initial load.
-- **React 18**
-  - The underlying library for building user interfaces with reusable components.
-  - Provides a smooth, interactive experience thanks to its virtual DOM and modern hooks.
+  - A popular framework built on React that makes pages load quickly and helps us organize our code clearly.
+- **React & TypeScript**
+  - React lets us build interactive interfaces in a straightforward way.
+  - TypeScript adds helpful checks on our code, reducing errors before we even run the app.
+- **Tailwind CSS**
+  - A utility-based styling tool that speeds up design work by giving us small, reusable CSS classes.
+- **shadcn/ui component library**
+  - A set of pre-designed, accessible UI blocks (buttons, tables, dialogs) that ensure a consistent look and feel.
+- **Axios (or Fetch wrapper)**
+  - A simple way to call our backend services from the browser, handling network requests and responses.
+- **React Context for Authentication**
+  - A technique to keep track of who is signed in, so we can protect certain pages and display user-specific data.
+
+These choices let us build polished, responsive screens quickly, while keeping the codebase easy to maintain.
+
+## Backend Technologies
+
+Our server side (where data is stored and business rules run) uses:
+
+- **Node.js & Express.js**
+  - A widely used JavaScript server environment and framework that power our API endpoints.
 - **TypeScript**
-  - A superset of JavaScript that adds types (labels for data).
-  - Helps catch errors early during development and makes the code easier to maintain.
-- **CSS (globals.css & theme.css)**
-  - **globals.css** applies base styles (fonts, colors, resets) across the entire app.
-  - **dashboard/theme.css** defines the look and feel specific to the dashboard area.
-  - This separation keeps styles organized and avoids accidental style conflicts.
+  - Extends JavaScript with type checks, catching mistakes early and making the code more self-documenting.
+- **Drizzle ORM & PostgreSQL**
+  - Drizzle provides a type-safe way to interact with a PostgreSQL database, ensuring data stays consistent.
+- **JSON Web Tokens (JWT)**
+  - A secure method for managing user sessions without storing credentials on the server.
+- **Zod**
+  - A library for validating all incoming data, ensuring only well-formed requests reach our business logic.
+- **Winston (or Pino)**
+  - Logging tools that record important events and errors, helping us debug issues in production.
+- **node-cron**
+  - A scheduler for running background tasks (like updating leaderboards at set times).
 
-By combining these tools, we have a clear structure (Next.js folders for pages and layouts), safer code (TypeScript), and flexible styling with vanilla CSS.
+Together, these components handle data storage, user authentication, scheduled updates, and robust error handling.
 
-## 2. Backend Technologies
-The backend handles data, user accounts, and the logic behind the scenes. Our choices here are:
+## Infrastructure and Deployment
 
-- **Next.js API Routes**
-  - Allows us to write server-side code (`route.ts` files) alongside our frontend in the same project.
-  - Runs on Node.js, so we can handle requests like sign-up, sign-in, and data fetching in one place.
-- **Node.js Runtime**
-  - The JavaScript environment on the server that executes our API routes.
-- **bcrypt** (npm package)
-  - A library for hashing passwords securely before storing them.
-  - Ensures that even if someone got access to our data, raw passwords aren’t visible.
-- **(Optional) NextAuth.js or JWT**
-  - While this starter kit shows a custom authentication flow, it can easily integrate services like NextAuth.js for email-based login or JWT (JSON Web Tokens) for stateless sessions.
+To run and maintain our application reliably:
 
-These components work together to receive user credentials, verify or store them securely, manage sessions or tokens, and deliver protected data back to the frontend.
-
-## 3. Infrastructure and Deployment
-Infrastructure covers where and how we host the app, as well as how changes get delivered:
-
+- **Docker & Docker Compose**
+  - Containers bundle our services (PostgreSQL, backend API, frontend app) so they run the same way everywhere.
+- **Nginx Reverse Proxy**
+  - Directs incoming web traffic to the right service, handles HTTPS, and improves performance.
 - **Git & GitHub**
-  - Version control system (Git) and remote hosting (GitHub) keep track of all code changes and allow team collaboration.
-- **Vercel (or Netlify)**
-  - A popular hosting service optimized for Next.js, with one-click deployments and global content delivery.
-  - Automatically rebuilds and deploys the site whenever code is pushed to the main branch.
+  - Version control for tracking changes, collaborating, and storing code safely.
 - **GitHub Actions (CI/CD)**
-  - Automates tasks like linting (ESLint), formatting (Prettier), and running any tests you add.
-  - Ensures that only clean, tested code goes live.
+  - Automates tests and deployments whenever we push updates, reducing manual errors.
+- **Environment Variables (`.env` files)**
+  - Keeps secrets (like database passwords and JWT keys) out of source code, making setups secure and flexible.
 
-Together, these tools provide a reliable, scalable setup where every code change is tested and deployed quickly, with minimal manual work.
+This setup makes deployments predictable, scalable, and easier to manage as the project grows.
 
-## 4. Third-Party Integrations
-While this starter kit is minimal by design, it already includes or can easily add:
+## Third-Party Integrations
 
-- **bcrypt**
-  - For secure password hashing (included as an npm dependency).
-- **NextAuth.js** (optional)
-  - A full-featured authentication library supporting email/password, OAuth, and more.
-- **Sentry or LogRocket** (optional)
-  - For real-time error tracking and performance monitoring in production.
+While our core logic is custom-built, we rely on several trusted external libraries to speed development and ensure reliability:
 
-These integrations help extend the app’s capabilities without building every feature from scratch.
+- **better-auth** (for initial authentication patterns)
+- **Tailwind CSS & shadcn/ui** (for UI styling and components)
+- **Drizzle ORM** (for database interactions)
+- **Axios** (for HTTP requests)
 
-## 5. Security and Performance Considerations
-We’ve baked in several measures to keep users safe and the app running smoothly:
+We can also add services like Google Analytics for usage insights or Stripe for payments if needed in the future.
 
-Security:
-- Passwords are never stored in plain text—bcrypt hashes them with a random salt.
-- API routes can implement CSRF protection and input validation to block malicious requests.
-- Session tokens or cookies are marked secure and HttpOnly to prevent theft via JavaScript.
+## Security and Performance Considerations
 
-Performance:
-- Server-side rendering (SSR) and static site generation (SSG) in Next.js deliver pages faster.
-- Code splitting and lazy-loaded components ensure users only download what they need.
-- Global CSS and theme files are small and cached by the browser for quick repeat visits.
+We’ve taken multiple steps to keep the system safe and fast:
 
-These strategies work together to give users a fast, secure experience every time.
+- **Secure Authentication**
+  - JWT tokens signed with a secret key, stored in secure cookies or local storage.
+  - Role-based access control (superadmin, admin, user) enforced on each API endpoint.
+- **Data Validation**
+  - Zod checks every incoming request, protecting against malformed or malicious data.
+- **Encrypted Connections**
+  - HTTPS enforced by Nginx, keeping data exchanges private.
+- **SQL Safety**
+  - Drizzle ORM prevents common database mistakes like SQL injection.
+- **Performance Optimizations**
+  - Next.js page pre-rendering and code splitting speed up initial load times.
+  - Tailwind’s utility classes and JIT compiler keep CSS files small.
+  - Caching headers and compression handled by Nginx further boost responsiveness.
 
-## 6. Conclusion and Overall Tech Stack Summary
-In building **codeguide-starter**, we chose technologies that:
+These measures ensure a smooth, secure experience for both admins and end users.
 
-- Align with modern web standards (Next.js, React, TypeScript).
-- Provide a clear, file-based project structure for rapid onboarding.
-- Offer built-in support for server-side rendering, API routes, and static assets.
-- Emphasize security through password hashing, session management, and safe defaults.
-- Enable easy scaling and future enhancements via modular code and optional integrations.
+## Conclusion and Overall Tech Stack Summary
 
-This stack strikes a balance between simplicity for newcomers and flexibility for experienced teams. It accelerates development of a secure authentication flow and a polished dashboard, while leaving room to plug in databases, test suites, and advanced features as the project grows.
+We’ve chosen a combination of modern, battle-tested tools to meet our goals:
+
+- **Frontend:** Next.js, React, TypeScript, Tailwind CSS, shadcn/ui, Axios
+- **Backend:** Node.js, Express.js, TypeScript, Drizzle ORM, PostgreSQL, JWT, Zod, Winston/Pino, node-cron
+- **Infrastructure:** Docker, Docker Compose, Nginx, Git/GitHub, GitHub Actions, environment variables
+
+This stack balances developer productivity, application performance, and security. By using established frameworks and libraries, we accelerate development while ensuring a maintainable, scalable platform for managing tournaments effectively. Feel free to reach out with any questions about these choices or their roles in the project!

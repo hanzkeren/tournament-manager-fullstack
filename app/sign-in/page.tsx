@@ -8,36 +8,25 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Alert, AlertDescription } from "@/components/ui/alert";
-import { signIn } from "@/lib/auth-client";
 import { Loader2 } from "lucide-react";
+import { useAuth } from "@/contexts/auth-context";
 
 export default function SignInPage() {
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
-    const [isLoading, setIsLoading] = useState(false);
     const [error, setError] = useState("");
     const router = useRouter();
+    const { login, isLoading } = useAuth();
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
-        setIsLoading(true);
         setError("");
 
         try {
-            const result = await signIn.email({
-                email,
-                password,
-            });
-
-            if (result.error) {
-                setError(result.error.message || "Sign in failed");
-            } else {
-                router.push("/dashboard");
-            }
+            await login(email, password);
+            router.push("/dashboard");
         } catch (err) {
-            setError("An unexpected error occurred");
-        } finally {
-            setIsLoading(false);
+            setError(err instanceof Error ? err.message : "An unexpected error occurred");
         }
     };
 
