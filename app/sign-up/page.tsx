@@ -12,16 +12,13 @@ import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
-import { signUp } from "@/lib/auth-client";
 import { Loader2, Eye, EyeOff } from "lucide-react";
+import { useAuth } from "@/contexts/auth-context";
 
 const signUpSchema = z.object({
-    name: z.string().min(2, "Name must be at least 2 characters"),
+    username: z.string().min(3, "Username must be at least 3 characters").max(50, "Username must be less than 50 characters"),
     email: z.string().email("Invalid email address"),
-    password: z
-        .string()
-        .min(8, "Password must be at least 8 characters")
-        .regex(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)/, "Password must contain at least one uppercase letter, one lowercase letter, and one number"),
+    password: z.string().min(8, "Password must be at least 8 characters"),
     confirmPassword: z.string(),
 }).refine((data) => data.password === data.confirmPassword, {
     message: "Passwords don't match",
@@ -31,16 +28,16 @@ const signUpSchema = z.object({
 type SignUpForm = z.infer<typeof signUpSchema>;
 
 export default function SignUpPage() {
-    const [isLoading, setIsLoading] = useState(false);
     const [error, setError] = useState("");
     const [showPassword, setShowPassword] = useState(false);
     const [showConfirmPassword, setShowConfirmPassword] = useState(false);
     const router = useRouter();
+    const { signup, isLoading } = useAuth();
 
     const form = useForm<SignUpForm>({
         resolver: zodResolver(signUpSchema),
         defaultValues: {
-            name: "",
+            username: "",
             email: "",
             password: "",
             confirmPassword: "",
@@ -48,25 +45,13 @@ export default function SignUpPage() {
     });
 
     const onSubmit = async (data: SignUpForm) => {
-        setIsLoading(true);
         setError("");
 
         try {
-            const result = await signUp.email({
-                email: data.email,
-                password: data.password,
-                name: data.name,
-            });
-
-            if (result.error) {
-                setError(result.error.message || "Sign up failed");
-            } else {
-                router.push("/dashboard");
-            }
+            await signup(data.username, data.email, data.password);
+            router.push("/dashboard");
         } catch (err) {
-            setError("An unexpected error occurred");
-        } finally {
-            setIsLoading(false);
+            setError(err instanceof Error ? err.message : "An unexpected error occurred");
         }
     };
 
@@ -90,13 +75,13 @@ export default function SignUpPage() {
                             
                             <FormField
                                 control={form.control}
-                                name="name"
+                                name="username"
                                 render={({ field }) => (
                                     <FormItem>
-                                        <FormLabel>Full Name</FormLabel>
+                                        <FormLabel>Username</FormLabel>
                                         <FormControl>
                                             <Input
-                                                placeholder="Enter your full name"
+                                                placeholder="Enter your username"
                                                 {...field}
                                                 disabled={isLoading}
                                             />
